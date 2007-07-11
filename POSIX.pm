@@ -1,24 +1,25 @@
 package re::engine::POSIX;
 use 5.009005;
-use strict;
-use XSLoader;
-use vars qw($VERSION);
+use XSLoader ();
 
-BEGIN {
-    $VERSION = '0.01';
+# All engines should subclass the core Regexp package
+our @ISA = 'Regexp';
+
+BEGIN
+{
+    $VERSION = '0.02';
     XSLoader::load __PACKAGE__, $VERSION;
 }
 
-use constant POSIX_ENGINE => get_posix_engine();
-
 sub import
 {
-    $^H{regcomp} = POSIX_ENGINE;
+    $^H{regcomp} = ENGINE;
 }
 
 sub unimport
 {
-    delete $^H{regcomp} if $^H{regcomp} == POSIX_ENGINE;
+    delete $^H{regcomp}
+        if $^H{regcomp} == ENGINE;
 }
 
 1;

@@ -1,0 +1,10 @@
+2007-07-11  Ævar Arnfjörð Bjarmason  <avar@cpan.org> (0.02)
+
+	* Makefile.PL: Minor cleanup
+	* POSIX.(pm|xs): Updated to pass the tests on current blead, still not
+	                 complete wrt s/// and split //
+	* POSIX.h: New header file for POSIX.xs
+
+2007-02-21  Ævar Arnfjörð Bjarmason  <avar@cpan.org> (0.01)
+
+	* Initial release
