@@ -24,4 +24,8 @@ t/flags.t
 t/match.t
 t/null.t
 t/qr.t
+t/s.t
+t/split-null.t
+t/split.t
+t/subexp.t
 TODO

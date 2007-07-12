@@ -1,5 +1,5 @@
 abstract: POSIX (IEEE Std 1003.1-2001) regular expressions
-author: "\xC3\x86var Arnfj\xC3\xB6r\xC3\xB0 Bjarmason <avar@cpan.org>"
+author: Ævar Arnfjörð Bjarmason <avar@cpan.org>
 build_requires: 
   Test::More: 0
 distribution_type: module

@@ -79,10 +79,11 @@ POSIX_comp(pTHX_ const SV * const pattern, const U32 flags)
     /* Save for later */
     rx->pprivate = re;
 
-    /* Tell perl how many match vars we have and allocate space for
-     * them, at least one is always allocated for $&
+    /*
+      Tell perl how many match vars we have and allocate space for
+      them, at least one is always allocated for $&
      */
-    rx->nparens = (U32)re->re_nsub; /* from size_t */
+    rx->nparens = (U32)re->re_nsub; /* cast from size_t */
     Newxz(rx->offs, rx->nparens + 1, regexp_paren_pair);
 
     /* return the regexp structure to perl */
@@ -94,57 +95,44 @@ POSIX_exec(pTHX_ REGEXP * const rx, char *stringarg, char *strend,
            char *strbeg, I32 minend, SV * sv,
            void *data, U32 flags)
 {
-    /* pregcomp vars */
-    register regex_t *re;
+    regex_t *re;
     regmatch_t *matches;
+    regoff_t offs;
     size_t parens;
     int err;
     char *err_msg;
-    int i, e, s;
+    int i;
 
     re = rx->pprivate;
     parens = (size_t)rx->nparens + 1;
 
     Newxz(matches, parens, regmatch_t);
-    if ((err = regexec(re, stringarg, parens, matches, 0)) != 0) {
+
+    err = regexec(re, stringarg, parens, matches, 0);
+
+    if (err != 0) {
         assert(err == REG_NOMATCH);
         Safefree(matches);
         return 0;
     }
 
-    if (err != 0) {
-        if (err == REG_NOMATCH) {
-            /* We didn't match */
-            Safefree(matches);
-            return 0;
-        } else {
-            /* This should only be REG_ESPACE */
-            err_msg = get_regerror(err, re);
-            free(err_msg);
-            regfree(re);
-            Safefree(matches);
-            croak("error executing %s: %s", rx->precomp, err_msg);
-        }
-    }
+    rx->subbeg = strbeg;
+    rx->sublen = strend - strbeg;
 
-    rx->sublen = strend-strbeg;
-    rx->subbeg = savepvn(strbeg,rx->sublen);
+    /*
+      regexec returns offsets from the start of `stringarg' but perl expects
+      them to count from `strbeg'.
+    */
+    offs = stringarg - strbeg;
 
-    for (i = 0; i < (rx->nparens + 1); i++) {
-        s = matches[i].rm_so;
-        e = matches[i].rm_eo;
-
-        if (s == -1 || e == -1) {
-            break;
-        } else {
-            rx->offs[i].start = s;
-            rx->offs[i].end = e;
-        }
+    for (i = 0; i < parens; i++) {
+        rx->offs[i].start = matches[i].rm_so + offs;
+        rx->offs[i].end   = matches[i].rm_eo + offs;
     }
 
     Safefree(matches);
-             
-    /* known to have matched by this point (see error handling above */   
+
+    /* known to have matched by this point (see error handling above */
     return 1;
 }
 
