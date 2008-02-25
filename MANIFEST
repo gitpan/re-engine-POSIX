@@ -10,6 +10,7 @@ t/captures.t
 t/flags.t
 t/match.t
 t/null.t
+t/pragma.t
 t/qr.t
 t/s.t
 t/split-null.t
